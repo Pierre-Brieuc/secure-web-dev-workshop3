@@ -9,3 +9,6 @@ app.use(locationController)
 app.listen(port, () => {
 	console.log(`API listening on port ${port}, visit http://localhost:${port}/`)
 })
+
+require("dotenv").config();
+const mongoose = require("mongoose");
