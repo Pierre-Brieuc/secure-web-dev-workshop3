@@ -2,38 +2,29 @@
 
 const Location = require('./locations.model')
 
-function findAll () {
-	return [1,2,3,4]
-}
-module.exports.findAll = findAll
 
-async function create (neobj) {
-	const toInsert = new Location({"filmType": newobj.fields.type_tournage, 
-								   "filmProducerName": newobj.fields.nom_producteur,
-									"endDate": newobj.fields.endDate,
-									"filmName": newobj.fields.filmName,
-									"district": newobj.fields.district,
-									"sourceLocationId": newobj.fields.sourceLocationId,
-									"filmDirectorName": newobj.fields.filmDirectorName,
-									"address": newobj.fields.address,                                    
-									"startDate": newobj.fields.startDate,                                      
-									"year": newobj.fields.year,
-									"geolocation": newobj.fields.geo_shape})
-	await toInsert.save()
+async function create (newobj) {
+	const toInsert = new Location(newobj)
+	return toInsert.save()
 }
+module.exports.create = create
 
 async function update (id, modification) {
 	await Location.updateOne(id,modification);
 }
+module.exports.update = update
 
 async function getAll () {
 	await Location.find({});
 }
+module.exports.getAll = getAll
 
 async function getOne (id) {
 	await Location.findById(id)
 }
+module.exports.getOne = getOne
 
 async function deleteLoc () {
 	await Location.deleteOne({sourceLocationId:id});
 }
+module.exports.deleteLoc = deleteLoc

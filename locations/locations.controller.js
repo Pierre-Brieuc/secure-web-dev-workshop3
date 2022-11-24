@@ -8,19 +8,20 @@ router.get('/locations', (req, res) => {
 	return res.status(200).send(locationsService.getAll())
 })
 
-router.get('/locations:id', async (req, res) => {
-	return res.status(200).send(await locationsService.getOne(id))
+router.get('/locations/:id', async (req, res) => {
+	return res.status(200).send(await locationsService.getOne(req.params.id))
 })
 
-router.get('/locations/create', (req, res) => {
-	return res.status(200).send(locationsService.create())
+router.post('/locations', async (req, res) => {
+	console.log(req.body)
+	return res.status(200).send( await locationsService.create(req.body))
 })
 
-router.get('/locations/update', (req, res) => {
-	return res.status(200).send(locationsService.update())
+router.patch('/locations/:id', (req, res) => {
+	return res.status(200).send(locationsService.update(req.params.id))
 })
 
-router.get('/locations/delete', (req, res) => {
+router.delete('/locations/:id', (req, res) => {
 	return res.status(200).send(locationsService.deleteLoc())
 })
 
