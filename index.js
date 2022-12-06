@@ -1,6 +1,6 @@
 require("dotenv").config();
-const mongoose = require("mongoose");
 
+const mongoose = require("mongoose");
 const express = require('express')
 const locationController = require('./locations/locations.controller')
 const app = express()
@@ -10,6 +10,11 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.json())  
 
 app.use(locationController)
+
+/*
+app.get('/', (req, res) => {
+	res.setEncoding(req)
+});*/
 
 async function main () {
 	await mongoose.connect(process.env.MONGO_URI)

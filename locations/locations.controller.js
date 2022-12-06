@@ -4,8 +4,8 @@
 const router = require('express').Router()
 const locationsService = require('./locations.service')
 
-router.get('/locations', (req, res) => {
-	return res.status(200).send(locationsService.getAll())
+router.get('/locations', async (req, res) => {
+	return res.status(200).send({locations : await locationsService.getAll()})
 })
 
 router.get('/locations/:id', async (req, res) => {
@@ -17,15 +17,15 @@ router.post('/locations', async (req, res) => {
 	return res.status(200).send( await locationsService.create(req.body))
 })
 
-router.patch('/locations/:id', (req, res) => {
-	return res.status(200).send(locationsService.update(req.params.id))
+router.patch('/locations/:id', async (req, res) => {
+	return res.status(200).send(await locationsService.update(req.params.id, req.body))
 })
 
-router.delete('/locations/:id', (req, res) => {
-	return res.status(200).send(locationsService.deleteLoc())
+router.delete('/locations/:id', async (req, res) => {
+	return res.status(200).send(await locationsService.deleteLoc(req.params.id))
 })
 
-router.get('/helloWorld', (req, res) => {
+router.get('/', (req, res) => {
 	return res.status(200).send("Hello World")
 })
 
