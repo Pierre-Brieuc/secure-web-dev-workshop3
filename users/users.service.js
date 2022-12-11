@@ -1,60 +1,47 @@
 // This file holds the Business-Logic layer, interacting with Data Layer
 
-const User = require('./users.model')
+const User = require('./users.model');
 const bcrypt = require("bcrypt");
+const passport = require('passport');
 
-
-// Register
-async function register (newobj) {
-	if (usernameIsUnique) {
-		bcrypt.hash(newobj.password, 5, function (err, hash) {
-			console.log(hash);
-			// TODO: Store the hash in your password DB
-		  });
-		const toInsert = new User(newobj)
-		return toInsert.save()
-	} else {
-		return null;
-	}
-}
-module.exports.register = register
-
-// Login
-async function login (objToCheck) {
-	// Check obj with bdd
-}
-module.exports.login = login
 
 // Get self
-async function getSelf (id) {
-	return User.findById(id)
+async function getSelf (username) {
+	return User.find({"username":username})
 }
 module.exports.getSelf = getSelf
 
 // Update self
-async function updateUser (id, modification) {
-	return User.updateOne(id,modification);
+async function updateUser (chosenUsername, modification) {
+	try {
+		return User.findOneAndUpdate({"username":chosenUsername},modification);
+	} catch (err) {
+		console.log("No user")
+	}
 }
-module.exports.update = update
+module.exports.updateUser = updateUser
 
 // Delete
-async function deleteUser (id) {
-	return User.deleteOne({sourceLocationId:id});
+async function deleteUser (chosenUsername) {
+	try {
+		return User.findOneAndDelete({"username":chosenUsername});
+	} catch (err){
+		console.log("The user does not exist")
+		//throw "The user does not exist"
+	}
 }
-module.exports.deleteLoc = deleteUser
+module.exports.deleteUser = deleteUser
 
 // Get all users
 async function getAllUsers () {
-	return User.find(); 
+	return User.find();
 }
 module.exports.getAllUsers = getAllUsers
 
-async function usernameIsUnique (username) {
-	var isUnique = true;
-	getAllUsers.forEach(element => {
-		if (element == username){
-			isUnique = false;
-		}
-	});
-	return isUnique;
+function verifyPassword(password) {
+	temp = /^[a-z0-9]+$/i
+	if(password.length < 8 && temp.test(password)){
+		return true
+	}
+	return false
 }
