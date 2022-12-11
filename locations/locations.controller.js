@@ -4,6 +4,11 @@
 const router = require('express').Router()
 const locationsService = require('./locations.service')
 
+//router.use(checkUser)
+function checkUser (user){
+	//Vérifier que le jeton jwt est le même
+}
+
 router.get('/locations', async (req, res) => {
 	return res.status(200).send({locations : await locationsService.getAll()})
 })

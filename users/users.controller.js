@@ -34,14 +34,14 @@ router.post('/users/register', (req, res, next) => {
 router.post('/users/login', (req, res, next) => {
 	passport.authenticate('local',(err,user,info) => {
 		if (err) console.log(err);//throw err
-		if (!user.username) console.log("404 error")//res.send("404 error");
-		if (!user.password) console.log("403 error")//res.send("403 error");
+		if (!user.username) res.status(404);
+		if (!user.password) res.status(403);
 		else {
 			req.logIn(user, err => {
 				if(err) console.log(err);//throw err
 				console.log("Successfully Authenticated")
 				res.send("Successfully Authenticated");
-				jwt.sign(user,)
+				//const accessToken = jwt.sign({"username":user.username, "password":user.password})
 			})
 		}
 	}) (req,res,next);
