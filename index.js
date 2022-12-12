@@ -37,5 +37,4 @@ async function main () {
 		console.log(`API listening on port ${port}, visit http://localhost:${port}/`)
 	})
 }
-
 main()
