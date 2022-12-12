@@ -3,6 +3,8 @@
 
 const router = require('express').Router()
 const locationsService = require('./locations.service')
+const passport = require('passport')
+require('../users/strategies/jwt')(passport)
 
 router.get('/locations', passport.authenticate('jwt',{session:false}), async (req, res) => {
 	return res.status(200).send({locations : await locationsService.getAll()})
