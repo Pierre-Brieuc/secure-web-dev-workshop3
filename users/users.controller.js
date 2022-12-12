@@ -12,6 +12,8 @@ const secret_key = process.env.SECRET_KEY
 
 require('./strategies/local')(passport)
 
+const roleMiddleware = (allowedRoles) => (req, res, next) => allowedRoles.includes(req.user?.role) ? next() : res.status(403).send()
+
 
 // Register
 router.post('/users/register', async (req, res, next) => {
@@ -99,27 +101,27 @@ router.post('/users/login', async (req, res, next) => {
 
 
 // Get self
-router.get('/users/me', passport.authenticate('jwt',{session:false}), async (req, res) => {
+router.get('/users/me', passport.authenticate('jwt',{session:false}), roleMiddleware(['user']), async (req, res) => {
 	res.send(req.user)
 	return res.status(200).send({user : await userService.getSelf(req.body.username)})
 	//return res.status(200).send({users : await userService.getSelf(req.user.username)})
 })
 
 // update self
-router.patch('/users/me', passport.authenticate('jwt',{session:false}), (req, res) => {
+router.patch('/users/me', passport.authenticate('jwt',{session:false}), roleMiddleware(['user']), (req, res) => {
 	return res.status(200).send(userService.updateUser(req.body.username, req.body))
 	//return res.status(200).send(userService.updateUser(req.user, req.body))
 })
 
 // Delete self
-router.delete('/users/me', passport.authenticate('jwt',{session:false}), (req, res) => {
+router.delete('/users/me', passport.authenticate('jwt',{session:false}), roleMiddleware(['user']), (req, res) => {
 	return res.status(200).send(userService.deleteUser(req.body.username))
 	//return res.status(200).send(userService.deleteUser(req.user.username))
 })
 
 
 // Get all
-router.get('/users', async (req, res) => {
+router.get('/users', passport.authenticate('jwt',{session:false}), roleMiddleware(['admin']), async (req, res) => {
 	return res.status(200).send({users : await userService.getAllUsers()})
 })
 
