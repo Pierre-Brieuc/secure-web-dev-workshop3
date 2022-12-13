@@ -16,7 +16,30 @@ const roleMiddleware = (allowedRoles) => (req, res, next) => allowedRoles.includ
 
 
 // Register
-router.post('/users/register', async (req, res, next) => {
+router.post('/users/register', async (req, res, next) => registerFunctionRoute(req, res, next))
+
+// Login
+router.post('/users/login', async (req, res, next) => loginFunctionRoute(req, res, next))
+
+// Get self
+router.get('/users/me', passport.authenticate('jwt',{session:false}), roleMiddleware(['user']), async (req, res) => getSelfRoute(req, res))
+
+// update self
+router.put('/users/me', passport.authenticate('jwt',{session:false}), roleMiddleware(['user']), async (req, res) => updateSelfRoute(req, res))
+
+// Delete self
+router.delete('/users/me', passport.authenticate('jwt',{session:false}), roleMiddleware(['user']), async (req, res) => deleteSelfRoute(req, res))
+
+// Get all
+router.get('/users', passport.authenticate('jwt',{session:false}), roleMiddleware(['admin']), async (req, res) => getAllUsersRoute(req, res))
+
+module.exports = router
+
+
+
+//------------------------------------ Functions for routes --------------------------------------------------//
+
+async function registerFunctionRoute (req, res, next) {
 	try {
         const { username, password } = req.body;
         //Check emptyness of the incoming data
@@ -32,7 +55,7 @@ router.post('/users/register', async (req, res, next) => {
         //Hash the password
         const salt = await bcrypt.genSalt(10);
         const hashPassword = await bcrypt.hash(req.body.password, salt);
-        const user = new User({"username":req.body.username,"password":hashPassword});
+        const user = new User({"username":req.body.username,"password":hashPassword, "role":"user"});
         await user.save();
         const token = await jwt.sign({ id: user._id }, process.env.SECRET_KEY/*, {expiresIn: process.env.JWT_EXPIRE}*/);
         return res.cookie({ 'token': token }).json({ success: true, message: 'User registered successfully', data: user })
@@ -57,10 +80,9 @@ router.post('/users/register', async (req, res, next) => {
 		}
 	})
 	*/
-})
+}
 
-// Login
-router.post('/users/login', async (req, res, next) => {
+async function loginFunctionRoute (req, res, next){
     try {
         const { username, password } = req.body;
         //Check emptyness of the incoming data
@@ -75,12 +97,12 @@ router.post('/users/login', async (req, res, next) => {
         const isPasswordMatched = await bcrypt.compare(password,userExist.password);
         if(!isPasswordMatched) return res.status(403);
 
-        const token = await jwt.sign({ id: userExist._id }, process.env.SECRET_KEY/*, {expiresIn: process.env.JWT_EXPIRE}*/);
-        return res.cookie({"token":token}).json({success:true,message:'LoggedIn Successfully'})
+        const token = await jwt.sign({ sub: userExist._id }, process.env.SECRET_KEY/*, {expiresIn: process.env.JWT_EXPIRE}*/);
+        //return res.cookie({"token":token}).json({success:true,message:'LoggedIn Successfully'})
+		return res.status(200).send({"token":token})
     } catch (error) {
         return res.json({ error: error });
     }
-
 
 	/* local strategy
 	passport.authenticate('local',(err,user,info) => {
@@ -97,36 +119,20 @@ router.post('/users/login', async (req, res, next) => {
 		}
 	}) (req,res,next);
 	*/
-})
+}
 
+async function getSelfRoute (req, res) {
+	return res.status(200).send({users : await userService.getSelf(req.user.username)})
+}
 
-// Get self
-router.get('/users/me', passport.authenticate('jwt',{session:false}), roleMiddleware(['user']), async (req, res) => {
-	res.send(req.user)
-	return res.status(200).send({user : await userService.getSelf(req.body.username)})
-	//return res.status(200).send({users : await userService.getSelf(req.user.username)})
-})
+async function updateSelfRoute (req, res) {
+	return res.status(200).send(userService.updateUser(req.user._id, req.body))
+}
 
-// update self
-router.patch('/users/me', passport.authenticate('jwt',{session:false}), roleMiddleware(['user']), (req, res) => {
-	return res.status(200).send(userService.updateUser(req.body.username, req.body))
-	//return res.status(200).send(userService.updateUser(req.user, req.body))
-})
+async function deleteSelfRoute(req, res) {
+	return res.status(200).send(userService.deleteUser(req.user._id))
+}
 
-// Delete self
-router.delete('/users/me', passport.authenticate('jwt',{session:false}), roleMiddleware(['user']), (req, res) => {
-	return res.status(200).send(userService.deleteUser(req.body.username))
-	//return res.status(200).send(userService.deleteUser(req.user.username))
-})
-
-
-// Get all
-router.get('/users', passport.authenticate('jwt',{session:false}), roleMiddleware(['admin']), async (req, res) => {
+async function getAllUsersRoute(req, res) {
 	return res.status(200).send({users : await userService.getAllUsers()})
-})
-
-module.exports = router
-
-
-// Patch : Remplace un bout de la donnée
-// Put : Remplace toute la donnée
+}

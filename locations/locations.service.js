@@ -5,12 +5,14 @@ const Location = require('./locations.model')
 
 async function create (newobj) {
 	const toInsert = new Location(newobj)
-	return toInsert.save()
+	await toInsert.save()
+	return {"message":"location created"}
 }
 module.exports.create = create
 
 async function update(id,obj) {
-	return Location.findOneAndUpdate(id,obj);
+	await Location.findByIdAndUpdate(id,obj);
+	return {"message":"done"}
 }
 module.exports.update = update
 
@@ -25,7 +27,8 @@ async function getOne (id) {
 module.exports.getOne = getOne
 
 async function deleteLoc (id) {
-	return Location.deleteOne(id);
+	await Location.findByIdAndDelete(id);
+	return {"message":"done"}
 }
 module.exports.deleteLoc = deleteLoc
 

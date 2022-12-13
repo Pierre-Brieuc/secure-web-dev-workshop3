@@ -12,36 +12,29 @@ async function getSelf (username) {
 module.exports.getSelf = getSelf
 
 // Update self
-async function updateUser (chosenUsername, modification) {
+async function updateUser (id, modification) {
 	try {
-		return User.findOneAndUpdate({"username":chosenUsername},modification);
+		await User.findByIdAndUpdate(id,modification);
+		return {"message":"done"}
 	} catch (err) {
-		console.log("No user")
+		return {"message":"The user does not exist"}
 	}
 }
 module.exports.updateUser = updateUser
 
 // Delete
-async function deleteUser (chosenUsername) {
+async function deleteUser (id) {
 	try {
-		return User.findOneAndDelete({"username":chosenUsername});
+		await User.findByIdAndDelete(id);
+		return {"message":"done"}
 	} catch (err){
-		console.log("The user does not exist")
-		//throw "The user does not exist"
+		return {"message":"The user does not exist"}
 	}
 }
 module.exports.deleteUser = deleteUser
 
 // Get all users
 async function getAllUsers () {
-	return User.find();
+	return User.find({});
 }
 module.exports.getAllUsers = getAllUsers
-
-function verifyPassword(password) {
-	temp = /^[a-z0-9]+$/i
-	if(password.length < 8 && temp.test(password)){
-		return true
-	}
-	return false
-}
