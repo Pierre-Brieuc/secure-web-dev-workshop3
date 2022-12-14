@@ -28,6 +28,15 @@ app.use(session({
 app.use(cookieParser("secretcode"))
 app.use(passport.initialize())
 app.use(passport.session())
+app.use((err,req,res,next) => {
+	console.log(err.stack)
+	switch (err.name){
+		case "NotFoundError":
+			return res.status(404).send(err.message)
+		default:
+			return res.status(500).send('Something broke!')
+	}
+})
 
 app.get('/', (req, res) => {res.setEncoding(req)});
 

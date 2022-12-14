@@ -10,15 +10,15 @@ require('../users/strategies/jwt')(passport)
 const roleMiddleware = (allowedRoles) => (req, res, next) => allowedRoles.includes(req.user?.role) ? next() : res.status(403).send()
 
 
-router.get('/locations', passport.authenticate('jwt',{session:false}), roleMiddleware(['user']), async (req, res) => getAllLocationsRoute(req,res))
+router.get('/locations', passport.authenticate('jwt',{session:false}), roleMiddleware(['user','admin']), async (req, res, next) => getAllLocationsRoute(req,res,next))
 
-router.get('/locations/:id', passport.authenticate('jwt',{session:false}), roleMiddleware(['user']), async (req, res) => getOneLocationRoute(req,res))
+router.get('/locations/:id', passport.authenticate('jwt',{session:false}), roleMiddleware(['user','admin']), async (req, res, next) => getOneLocationRoute(req,res,next))
 
-router.post('/locations', passport.authenticate('jwt',{session:false}), roleMiddleware(['user']), async (req, res) => createLocationRoute(req,res))
+router.post('/locations', passport.authenticate('jwt',{session:false}), roleMiddleware(['user','admin']), async (req, res, next) => createLocationRoute(req,res,next))
 
-router.put('/locations/:id', passport.authenticate('jwt',{session:false}), roleMiddleware(['user']), async (req, res) => updateOneLocationRoute(req,res))
+router.put('/locations/:id', passport.authenticate('jwt',{session:false}), roleMiddleware(['user','admin']), async (req, res, next) => updateOneLocationRoute(req,res,next))
 
-router.delete('/locations/:id', passport.authenticate('jwt',{session:false}), roleMiddleware(['user']), async (req, res) => deleteOneLocationRoute(req,res))
+router.delete('/locations/:id', passport.authenticate('jwt',{session:false}), roleMiddleware(['user','admin']), async (req, res, next) => deleteOneLocationRoute(req,res,next))
 
 router.get('/', (req, res) => {
 	return res.status(200).send("Hello World")
@@ -27,25 +27,45 @@ router.get('/', (req, res) => {
 module.exports = router
 
 
-//------------------------------------ Functions for roots --------------------------------------------------//
+//------------------------------------ Functions for routes --------------------------------------------------//
 
 
-async function getAllLocationsRoute (req, res) {
-	return res.status(200).send({locations : await locationsService.getAll()})
+async function getAllLocationsRoute (req, res, next) {
+	try{
+		return res.status(200).send({locations : await locationsService.getAll()})
+	} catch (err){
+		next(err)
+	}
 } 
 
-async function getOneLocationRoute (req, res) {
-	return res.status(200).send(await locationsService.getOne(req.params.id))
+async function getOneLocationRoute (req, res, next) {
+	try{
+		return res.status(200).send({location : await locationsService.getOne(req.params.id)})
+	} catch (err){
+		next(err)
+	}
 }
 
-async function createLocationRoute (req, res) {
-	return res.status(200).send( await locationsService.create(req.body))
+async function createLocationRoute (req, res, next) {
+	try {
+		return res.status(200).send(await locationsService.create(req.body))
+	}catch (err){
+		next(err)
+	}
 }
 
-async function updateOneLocationRoute (req, res) {
-	return res.status(200).send(await locationsService.update(req.params.id, req.body))
+async function updateOneLocationRoute (req, res, next) {
+	try{
+		return res.status(200).send({locations : await locationsService.update(req.params.id, req.body)})
+	} catch (err){
+		next(err)
+	}
 }
 
-async function deleteOneLocationRoute(req, res) {
-	return res.status(200).send(await locationsService.deleteLoc(req.params.id))
+async function deleteOneLocationRoute(req, res, next) {
+	try{
+		return res.status(200).send({locations : await locationsService.deleteLoc(req.params.id)})
+	} catch (err){
+		next(err)
+	}
 }
