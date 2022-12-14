@@ -3,7 +3,6 @@
 const Location = require('./locations.model')
 const {NotFoundError} = require('../custom-errors/NotFoundError.error')
 
-
 async function create (newobj) {
 	try{
 		const toInsert = new Location(newobj)

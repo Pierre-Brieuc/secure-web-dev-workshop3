@@ -9,21 +9,21 @@ const {NotFoundError} = require('../custom-errors/NotFoundError.error')
 //login
 async function login (req,res,next){
 	const { username, password } = req.body;
+
 	//Check emptyness of the incoming data
 	if (!username || !password) {
 		throw new NotFoundError("Please enter all the details");
-		//return res.json({ message: 'Please enter all the details' })
 	}
+	
 	//Check if the user already exist or not
 	const userExist = await User.findOne({"username":req.body.username});
-	if(!userExist) throw new NotFoundError("User does not exist"); //return res.status(404);
+	if(!userExist) throw new NotFoundError("User does not exist");
 
 	//Check password match
 	const isPasswordMatched = await bcrypt.compare(password,userExist.password);
-	if(!isPasswordMatched) throw new NotFoundError("The password is not good"); //return res.status(403);
+	if(!isPasswordMatched) throw new NotFoundError("The password is not good");
 
 	const token = await jwt.sign({ sub: userExist._id }, process.env.SECRET_KEY/*, {expiresIn: process.env.JWT_EXPIRE}*/);
-	//return res.cookie({"token":token}).json({success:true,message:'LoggedIn Successfully'})
 	return res.status(200).send({"token":token})
 
 	/* -----------------------------------------  local strategy  -----------------------------------------------------------
@@ -49,7 +49,6 @@ async function register (req,res,next){
 	const { username, password } = req.body;
 	//Check emptyness of the incoming data
 	if (!username || !password) {
-		//return res.json({ message: 'Please enter all the details' })
 		throw new NotFoundError('Please enter all the details')
 	}
 
@@ -57,7 +56,6 @@ async function register (req,res,next){
 	const userExist = await User.findOne({ username: req.body.username });
 	if (userExist) {
 		throw new NotFoundError('User already exist with the given username')
-		//return res.json({ message: 'User already exist with the given username' })
 	}
 
 	//Hash the password
