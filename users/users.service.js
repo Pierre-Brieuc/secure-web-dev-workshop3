@@ -16,11 +16,11 @@ async function login (req,res,next){
 	}
 	
 	//Check if the user already exist or not
-	const userExist = await User.findOne({"username":req.body.username});
+	const userExist = await User.find({"username":req.body.username});
 	if(!userExist) throw new NotFoundError("User does not exist");
 
 	//Check password match
-	const isPasswordMatched = await bcrypt.compare(password,userExist.password);
+	const isPasswordMatched = await bcrypt.compare(password,userExist[0].password);
 	if(!isPasswordMatched) throw new NotFoundError("The password is not good");
 
 	const token = await jwt.sign({ sub: userExist._id }, process.env.SECRET_KEY/*, {expiresIn: process.env.JWT_EXPIRE}*/);
@@ -37,7 +37,7 @@ async function register (req,res,next){
 	}
 
 	//Check if the user already exist or not
-	const userExist = await User.findOne({ username: req.body.username });
+	const userExist = await User.find({ username: req.body.username });
 	if (userExist) {
 		throw new NotFoundError('User already exist with the given username')
 	}
