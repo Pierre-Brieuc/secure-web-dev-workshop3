@@ -25,22 +25,6 @@ async function login (req,res,next){
 
 	const token = await jwt.sign({ sub: userExist._id }, process.env.SECRET_KEY/*, {expiresIn: process.env.JWT_EXPIRE}*/);
 	return res.status(200).send({"token":token})
-
-	/* -----------------------------------------  local strategy  -----------------------------------------------------------
-	passport.authenticate('local',(err,user,info) => {
-		if (err) console.log(err);//throw err
-		if (!user.username) res.status(404);
-		if (!user.password) res.status(403);
-		else {
-			req.logIn(user, err => {
-				if(err) console.log(err);//throw err
-				console.log("Successfully Authenticated")
-				res.send("Successfully Authenticated");
-				//const accessToken = jwt.sign({"username":user.username, "password":user.password})
-			})
-		}
-	}) (req,res,next);
-	*/
 }
 module.exports.login = login
 
@@ -66,24 +50,6 @@ async function register (req,res,next){
 	await user.save();
 	const token = await jwt.sign({ id: user._id }, process.env.SECRET_KEY/*, {expiresIn: process.env.JWT_EXPIRE}*/);
 	return res.cookie({ 'token': token }).json({ success: true, message: 'User registered successfully', data: user })
-
-	/* -----------------------------------------  local strategy  -----------------------------------------------------------
-	var res = User.findOne({"username":req.body.username}, async (err,doc) => {
-		if (err){
-			console.log(err)
-		} else if (doc){
-			console.log("This username is not available")
-		} else if (!doc) {
-			const hashedPassword = await bcrypt.hash(req.body.password, 10);
-			const toInsert = new User({
-				"username":req.body.username,
-				"password":hashedPassword
-			})
-			console.log("User created")
-			await toInsert.save()
-		}
-	})
-	*/
 }
 module.exports.register = register
 
@@ -100,7 +66,7 @@ module.exports.getSelf = getSelf
 
 // Update self
 async function updateUser (id, modification) {
-	const user = await getSelf(id)
+	await getSelf(id)                              
 	await User.findByIdAndUpdate(id,modification);
 	return await getSelf(id)
 }
@@ -108,7 +74,7 @@ module.exports.updateUser = updateUser
 
 // Delete
 async function deleteUser (id) {
-	const user = await getSelf(id)
+	await getSelf(id)
 	await User.findByIdAndDelete(id);
 	return {"message":"User deleted"}
 }

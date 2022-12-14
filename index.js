@@ -33,6 +33,8 @@ app.use((err,req,res,next) => {
 	switch (err.name){
 		case "NotFoundError":
 			return res.status(404).send(err.message)
+		case "other":
+			return res.status(404).send(err.message)
 		default:
 			return res.status(500).send('Something broke!')
 	}

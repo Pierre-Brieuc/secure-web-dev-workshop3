@@ -15,7 +15,7 @@ async function create (newobj) {
 module.exports.create = create
 
 async function update(id,modification) {
-	const loc = await getOne(id)
+	await getOne(id)
 	await Location.findByIdAndUpdate(id,modification);
 	return await getAll()
 }
@@ -40,7 +40,7 @@ async function getOne (id) {
 module.exports.getOne = getOne
 
 async function deleteLoc (id) {
-	const loc = await getOne(id)
+	await getOne(id)
 	await Location.findByIdAndDelete(id);
 	return await getAll()
 }
